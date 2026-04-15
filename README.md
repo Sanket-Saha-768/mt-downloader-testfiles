@@ -1,125 +1,95 @@
 # mt-downloader-testfiles
-This repository contains testfiles which are candidate downloads for the mt-downloader project done as part of my Operating System coursework at Indian Statistical Institute, Kolkata.
-Below you can find a short tutorial on how to use git-lfs to commit very large files such as over 500MBs.
 
-# Git LFS — storing large files in GitHub
+Large test assets for the [mt-downloader](https://github.com/Sanket-Saha-768/mt-downloader) project made by [me](https://github.com/Sanket-Saha-768) and [Aniket Das](https://github.com/AniketDas13), stored via Git LFS.
 
-## What is Git LFS?
+This repository is part of my Operating Systems course project at Indian Statistical Institute, Kolkata.
 
-Git LFS (Large File Storage) replaces large files in your repository with small text pointers, while storing the actual file contents on a separate server. This lets you version large binaries (videos, datasets, model weights, archives) without bloating your git history.
+## 📥 Downloading a test file
 
-GitHub's free plan includes **1 GB** of LFS storage and **1 GB/month** of bandwidth.
+Always use the `raw` URL, not the `blob` URL. The `blob` URL serves an HTML preview page — the downloader needs the actual file bytes.
+
+❌ `https://github.com/Sanket-Saha-768/mt-downloader-testfiles/blob/main/Abhijan.1962.SD.avi`  
+✅ `https://github.com/Sanket-Saha-768/mt-downloader-testfiles/raw/main/Abhijan.1962.SD.avi`
+
+```bash
+uv run mt-downloader \
+  "https://github.com/Sanket-Saha-768/mt-downloader-testfiles/raw/main/Abhijan.1962.SD.avi" \
+  --threads 8 \
+  --out Abhijan.1962.SD.avi
+```
 
 ---
 
-## Installation
+## 📤 Adding a new file to this repository
 
-**Ubuntu / Debian**
+### Prerequisites
+
+Make sure Git LFS is installed and initialized on your machine (one-time setup):
+
 ```bash
+# Install (Ubuntu/Debian)
 sudo apt install git-lfs
-```
 
-**macOS**
-```bash
+# Install (macOS)
 brew install git-lfs
-```
 
-**Windows**
-Download the installer from [git-lfs.com](https://git-lfs.com), or via winget:
-```bash
-winget install GitHub.GitLFS
-```
-
-Verify it installed:
-```bash
-git lfs version
-```
-
----
-
-## Setup (once per machine)
-
-```bash
+# Initialize globally
 git lfs install
 ```
 
-This registers the LFS hooks globally in your git config. You only need to do this once per machine, not once per repo.
+### Steps
 
----
-
-## Tracking file types
-
-Inside your repository, tell LFS which file types to manage:
+**1. Clone this repository**
 
 ```bash
-# Track by extension
-git lfs track "*.avi"
-git lfs track "*.mp4"
-git lfs track "*.zip"
-
-# Track a specific file
-git lfs track "data/model_weights.bin"
+git clone https://github.com/Sanket-Saha-768/mt-downloader-testfiles.git
+cd mt-downloader-testfiles
 ```
 
-This creates or updates a `.gitattributes` file. **Commit it** — it's how git knows which files LFS manages:
+**2. Track the file type you want to add** (skip if already tracked)
+
+```bash
+git lfs track "*.avi"
+git lfs track "*.mp4"
+git lfs track "*.bin"
+```
+
+This updates `.gitattributes`. Commit it before adding your file:
 
 ```bash
 git add .gitattributes
-git commit -m "configure git-lfs tracking"
+git commit -m "track <extension> files with lfs"
 ```
 
----
-
-## Adding and pushing large files
+**3. Add your file and push**
 
 ```bash
-# Add your file normally — LFS handles it transparently
-git add path/to/largefile.avi
-git commit -m "add large file via lfs"
+git add path/to/your/largefile.avi
+git commit -m "add largefile.avi"
 git push origin main
 ```
 
-During the push you'll see LFS uploading the actual binary:
+During the push you'll see LFS uploading the binary:
+
 ```
 Uploading LFS objects: 100% (1/1), 1.1 GB, 5.2 MB/s
 ```
 
----
-
-## Verifying LFS is working
+**4. Verify it was tracked correctly**
 
 ```bash
-# List all files tracked by LFS in this repo
 git lfs ls-files
 ```
 
-A `*` next to the filename means the file has been committed through LFS. A `-` means the pointer exists but the content hasn't been pushed yet.
-
-```bash
-# Check what patterns are being tracked
-git lfs track
-```
+A `*` next to the filename means the file was committed through LFS correctly. A `-` means the pointer exists but the content hasn't been pushed yet.
 
 ---
 
-## Cloning a repo that uses LFS
+## 🚑 Common mistakes
 
-```bash
-# Regular clone — LFS files are downloaded automatically
-git clone https://github.com/user/repo
-```
+**Committed a large file without LFS first?**  
+GitHub rejects pushes over 100 MB. Fix it by rewriting the commit:
 
-If you cloned before LFS was set up and files are missing:
-```bash
-git lfs pull
-```
-
----
-
-## Common mistakes
-
-**Committed a large file without LFS first?**
-GitHub will reject pushes over 100 MB. Fix it by rewriting the commit:
 ```bash
 git lfs track "*.avi"
 git add .gitattributes
@@ -129,21 +99,21 @@ git commit --amend --no-edit
 git push origin main
 ```
 
-**`.gitattributes` not committed?**
+**`.gitattributes` not committed before adding the file?**  
 LFS tracking only applies to files added *after* `.gitattributes` is committed. Always commit `.gitattributes` first.
 
-**Went over the bandwidth limit?**
-LFS downloads count against your monthly quota. For high-traffic public repos, consider mirroring large files to a CDN or object store (S3, Cloudflare R2) and linking directly.
+**Went over the bandwidth limit?**  
+GitHub's free plan includes 1 GB of LFS storage and 1 GB/month of bandwidth. LFS downloads count against this quota. Keep test files reasonably sized.
 
 ---
 
-## Quick reference
+## 📋 Quick reference
 
 | Command | What it does |
 |---|---|
-| `git lfs install` | Enable LFS on your machine |
+| `git lfs install` | Enable LFS on your machine (once per machine) |
 | `git lfs track "*.ext"` | Track a file type |
-| `git lfs ls-files` | List LFS-managed files |
-| `git lfs pull` | Download LFS files after clone |
+| `git lfs ls-files` | List LFS-managed files in this repo |
+| `git lfs pull` | Download LFS files after a clone |
 | `git lfs status` | Show pending LFS changes |
 | `git lfs migrate import --include="*.avi"` | Retroactively move existing files into LFS |
